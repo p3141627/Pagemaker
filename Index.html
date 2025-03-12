@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Page Maker</title>
+    <style id="generatedCSS"></style>
+</head>
+<body>
+    <h1>Page Maker</h1>
+
+    <label for="websiteDescription">Website Description:</label><br>
+    <textarea id="websiteDescription" rows="4" cols="50"></textarea><br><br>
+
+    <button onclick="generateWebsite()">Generate Website</button><br><br>
+
+    <div id="websitePreview"></div>
+    <canvas id="dataCanvas" style="display: none;"></canvas>
+
+    <script>
+        function generateWebsite() {
+            const description = document.getElementById("websiteDescription").value;
+            const websitePreview = document.getElementById("websitePreview");
+            const canvas = document.getElementById("dataCanvas");
+            const ctx = canvas.getContext("2d");
+
+            // Generate HTML from description
+            const generatedHTML = `<p>${description}</p>`;
+            websitePreview.innerHTML = generatedHTML;
+
+            // Generate CSS (Basic theme based on description length)
+            const descriptionLength = description.length;
+            const backgroundColor = descriptionLength > 100 ? "#f0f0f0" : "#e0e0e0";
+            const textColor = descriptionLength > 100 ? "#333" : "#555";
+            const css = `
+                body {
+                    background-color: ${backgroundColor};
+                    color: ${textColor};
+                    font-family: sans-serif;
+                    text-align: center;
+                    padding: 20px;
+                }
+                p {
+                  max-width: 600px;
+                  margin: 20px auto;
+                }
+            `;
+            document.getElementById("generatedCSS").textContent = css;
+
+            // Generate Pixel Data (Example: storing description length)
+            const pixelData = generatePixelData(descriptionLength.toString());
+            displayPixelData(pixelData, canvas, ctx);
+
+            // Generate Title based on description (Simple example)
+            const words = description.split(" ");
+            const title = words.length > 3 ? `${words[0]} ${words[1]} Website` : "Generated Website";
+            document.title = title;
+            document.querySelector("h1").textContent = title;
+        }
+
+        function generatePixelData(text) {
+            const colorMap = {};
+            const pixelData = [];
+            for (let char of text) {
+                if (!colorMap[char]) {
+                    colorMap[char] = getRandomHexColor();
+                }
+                pixelData.push(colorMap[char]);
+            }
+            return pixelData;
+        }
+
+        function getRandomHexColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function displayPixelData(pixelData, canvas, ctx) {
+            const pixelSize = 10;
+            const canvasWidth = Math.ceil(Math.sqrt(pixelData.length)) * pixelSize;
+            canvas.width = canvasWidth;
+            canvas.height = canvasWidth;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let x = 0;
+            let y = 0;
+            for (let color of pixelData) {
+                ctx.fillStyle = color;
+                ctx.fillRect(x, y, pixelSize, pixelSize);
+                x += pixelSize;
+                if (x >= canvas.width) {
+                    x = 0;
+                    y += pixelSize;
+                }
+            }
+            // You can now access the canvas.toDataURL() for image representation if needed.
+            // For example, to display the pixel data as an image:
+            // const img = new Image();
+            // img.src = canvas.toDataURL();
+            // document.body.appendChild(img);
+        }
+    </script>
+</body>
+</html>
